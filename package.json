@@ -1,0 +1,52 @@
+{
+  "name": "n-getsu",
+  "version": "1.0.0",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cron": "^1.2.1",
+    "crypto-js": "^3.1.9-1",
+    "express": "^4.14.0",
+    "fs-promise": "^1.0.0",
+    "jsonschema": "^1.1.0",
+    "log4js": "^1.1.0",
+    "mongodb": "^2.2.11",
+    "mongoose": "^4.9.3",
+    "node-rsa": "^0.4.2",
+    "power-assert": "^1.4.2",
+    "request": "^2.79.0",
+    "socket.io": "^1.7.1",
+    "source-map-support": "^0.4.6"
+  },
+  "devDependencies": {
+    "@types/body-parser": "0.0.33",
+    "@types/cron": "^1.0.30",
+    "@types/crypto-js": "^3.1.33",
+    "@types/express": "^4.0.34",
+    "@types/fs-promise": "^1.0.1",
+    "@types/jsonschema": "0.0.4",
+    "@types/log4js": "0.0.32",
+    "@types/mocha": "^2.2.39",
+    "@types/mongodb": "^2.1.35",
+    "@types/mongoose": "^4.7.9",
+    "@types/node": "^6.0.51",
+    "@types/power-assert": "^1.4.29",
+    "@types/request": "0.0.39",
+    "@types/sinon": "^1.16.35",
+    "@types/socket.io": "^1.4.27",
+    "intelli-espower-loader": "^1.0.1",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "remap-istanbul": "^0.9.1",
+    "sinon": "^1.17.7",
+    "typescript": "^2.2.1"
+  },
+  "scripts": {
+    "start": "tsc&&node ./dist/scripts/app.js",
+    "pretest": "set NODE_ENV=test&&tsc",
+    "test": "node node_modules\\istanbul\\lib\\cli.js cover node_modules\\mocha\\bin\\_mocha -- ./dist/tests/**/*.test.js --require intelli-espower-loader",
+    "posttest": "cd coverage && remap-istanbul -i coverage.json -o html-report -t html&&set NODE_ENV="
+  },
+  "directories": {
+    "test": "dist/tests"
+  }
+}
