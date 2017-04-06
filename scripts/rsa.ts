@@ -1,5 +1,7 @@
 /**
+ * Copyright (c) 2015 WhiteCat6142
  * https://github.com/WhiteCat6142/syake
+ * http://opensource.org/licenses/mit-license.php
  */
 
 import * as bigInt from 'big-integer';
