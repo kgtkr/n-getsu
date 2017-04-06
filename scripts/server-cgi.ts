@@ -3,7 +3,7 @@ import * as util from './util';
 import * as url from 'url';
 import * as dns from 'dns';
 import * as request from 'request';
-import { ResModel, UpdateModel, TagModel } from './models';
+import { ResModel, SearchNodeModel, TagModel, convertRes, fromRecord, Res } from './models';
 
 const router = Router();
 
@@ -183,7 +183,7 @@ router.get('/get/:filename/:stamp', async (req, res) => {
     filename: req.param('filename'),
     ...stampParamToQuery(req.param('stamp'))
   });
-  res.end(reses.map(x => x.raw).join('\n'));
+  res.end(reses.map(x => convertRes.toRecord(x)).join('\n'));
 });
 
 router.get('/get/:filename/:stamp/:md5', async (req, res) => {
@@ -193,7 +193,7 @@ router.get('/get/:filename/:stamp/:md5', async (req, res) => {
     md5: req.params('md5')
   });
 
-  res.end(reses.map(x => x.raw).join('\n'));
+  res.end(reses.map(x => convertRes.toRecord(x)).join('\n'));
 });
 
 router.get('/head/:filename/:stamp', async (req, res) => {
@@ -201,7 +201,7 @@ router.get('/head/:filename/:stamp', async (req, res) => {
     filename: req.param('filename'),
     ...stampParamToQuery(req.param('stamp'))
   });
-  res.end(reses.map(x => x.stamp + '<>' + x.md5).join('\n'));
+  res.end(reses.map(x => convertRes.toHead(x)).join('\n'));
 });
 
 router.get('/head/:filename/:stamp/:md5', async (req, res) => {
@@ -211,7 +211,7 @@ router.get('/head/:filename/:stamp/:md5', async (req, res) => {
     md5: req.params('md5')
   });
 
-  res.end(reses.map(x => x.stamp + '<>' + x.md5).join('\n'));
+  res.end(reses.map(x => convertRes.toHead(x)).join('\n'));
 });
 
 router.get('/update/:filename/:stamp/:md5/:node', async (req, res) => {
@@ -232,7 +232,7 @@ router.get('/update/:filename/:stamp/:md5/:node', async (req, res) => {
   }
 
   //既に更新処理をしているなら何もしない
-  if ((await UpdateModel.findOne({
+  if ((await ResModel.findOne({
     filename,
     md5,
     stamp
@@ -240,25 +240,21 @@ router.get('/update/:filename/:stamp/:md5/:node', async (req, res) => {
     return;
   }
 
-  //更新情報セーブ
-  await new UpdateModel({
-    stamp,
-    md5,
-    title: filenameToTitle(filename),
-    filename
-  }).save();
-
   //取得
-  await new Promise((resolve, reject) => {
+  new ResModel(await new Promise<Res>((resolve, reject) => {
     request.get(`${node}/get/${filename}/${stamp}/${md5}`, (err, _res, body) => {
       if (err) {
         reject(err);
         return;
       }
 
-
+      try {
+        resolve(fromRecord(filename, body));
+      } catch (e) {
+        reject(e);
+      }
     });
-  });
+  })).save();
 
 
   //他ノードに通知
@@ -267,6 +263,12 @@ router.get('/update/:filename/:stamp/:md5/:node', async (req, res) => {
     //送った後待機はしない
     request.get(url);
   }
+});
+
+router.get('/recent/:stamp', async (req, res) => {
+  let stamp = req.param('stamp');
+  let reses=await ResModel.find(stampParamToQuery(stamp));
+  res.end(reses.map(x=>convertRes.toRecent(x)).join('\n'));
 });
 
 router.get('/', (_req, res) => {

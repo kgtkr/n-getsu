@@ -134,10 +134,10 @@ export function fromRecord(filename: string, record: string): Res {
         throw new Error();
       }
 
-      res.signature={
+      res.signature = {
         sign,
         pubkey,
-        target:targetArr
+        target: targetArr
       };
     }
   }
@@ -231,4 +231,18 @@ export function parseNamedField(text: string): Map<string, string> {
   });
 
   return result;
+}
+
+export module convertRes {
+  export function toRecord(res: Res): string {
+    return `${res.stamp}<>${res.md5}<>${res.text}`;
+  }
+
+  export function toRecent(res: Res): string {
+    return `${res.stamp}<>${res.md5}<>${res.filename}`;
+  }
+
+  export function toHead(res: Res): string {
+    return `${res.stamp}<>${res.md5}`;
+  }
 }
